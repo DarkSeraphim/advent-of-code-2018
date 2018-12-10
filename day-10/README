@@ -1,0 +1,4 @@
+# Running instructions
+Change input, and run the command `python part-1.py <steps>`. This will apply the transition vector <steps> times, and then create the image.
+
+As a useful hint: if you hit memory limits, you're definitely far off, your steps are either too high or too low.
