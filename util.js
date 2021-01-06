@@ -1,30 +1,65 @@
 const fs = require('fs');
-const readFile = file => new Promise((resolve, reject) => {
-  fs.readFile(file, 'utf8', (err, str) => {
-    if (err) reject(err);
-    else resolve(str);
-  });
-});
 
-const readLines = file => readFile(file)
-   .then(str => str.trim().split("\n"));
+function readStdin() {
+  return fs.readFileSync(0, 'utf-8')
+}
 
-const readTokens = (file, delimiter) => 
-  readLines(file).then(lines => lines.flatMap(line => line.split(delimiter)));
+function readLines(delimiter = '\n')  {
+  return readStdin().trim().split(delimiter)
+}
 
-const readElements = (file, delimiter, decoder) =>
-  readLines(file).then(lines => lines.flatMap(line => line.split(delimiter)).map(decoder));
+function readTokens(delimiter) {
+  if (!delimiter) {
+    throw new Error('Falsy delimiter for readTokens');
+  }
+  return readLines().flatMap(line => line.split(delimiter))
+}
 
-const readChars = (file, ignoreNewlines = true) => {
-  return readFile(file).then(str => 
-    [...str]
-      .filter(c => !ignoreNewlines || c != '\n'));
+function readElements(delimiter, decoder) {
+  if (typeof delimiter === 'function') {
+    decoder = delimiter;
+    delimiter = null;
+  }
+
+  return (delimiter ? readTokens(delimiter) : readLines()).map(decoder);
+}
+
+function readChars(ignoreNewlines = true) {
+  [...readStdin()]
+    .filter(c => !ignoreNewlines || c !== '\n')
+}
+
+function* cycle(iterable) {
+  while (true) {
+    for (const next of iterable) {
+      yield next;
+    }
+  }
+}
+
+function parseInt1(x) {
+  return parseInt(x)
+}
+
+function inspect(x) {
+  console.log(x)
+  return x;
 }
 
 module.exports = {
-  readFile,
+  // Input
+  readStdin,
   readLines,
   readTokens,
   readElements,
   readChars,
+
+  // Utilities
+  cycle,
+
+  // patches
+  parseInt: parseInt1,
+
+  // Debug helpers
+  inspect,
 };
