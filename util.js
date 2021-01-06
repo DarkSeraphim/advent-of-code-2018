@@ -37,6 +37,14 @@ function* cycle(iterable) {
   }
 }
 
+function patchArray() {
+  let oldSort = Array.prototype.sort;
+  Array.prototype.sort = function(sorter) {
+    oldSort.call(this, sorter);
+    return this;
+  };
+}
+
 function parseInt1(x) {
   return parseInt(x)
 }
@@ -56,6 +64,7 @@ module.exports = {
 
   // Utilities
   cycle,
+  patchArray,
 
   // patches
   parseInt: parseInt1,
