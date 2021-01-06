@@ -1,4 +1,4 @@
-const { readLines } = require('../util.js');
+const { readElements } = require('../util.js');
 
 const LINE = /#(?<id>\d+) @ (?<offsetX>\d+),(?<offsetY>\d+): (?<width>\d+)x(?<height>\d+)/;
 
@@ -36,39 +36,35 @@ class Square {
 }
 
 let count = 0;
-readLines('input').then(lines => {
-  let index = 0;
-  let squares = [];
-  let unmatched = [];
-  lines.map(line => LINE.exec(line).groups)
-       .map(({id, offsetX, offsetY, width, height}) => {
-         process.stdout.write(`\rIndex ${index} out of ${lines.length}`);
-         index++;
-         offsetX = parseInt(offsetX);
-         offsetY = parseInt(offsetY);
-         width = parseInt(width);
-         height = parseInt(height);
-         square = new Square(id, offsetX, offsetY, width, height);
-         let o;
-         if (o = squares.reduce((acc, s) => acc || square.overlaps(s), false)) {
-          squares.push(square);
-         }
+let index = 0;
+let squares = [];
+let unmatched = [];
+readElements(line => LINE.exec(line).groups)
+     .map(({id, offsetX, offsetY, width, height}) => {
+       offsetX = parseInt(offsetX);
+       offsetY = parseInt(offsetY);
+       width = parseInt(width);
+       height = parseInt(height);
+       square = new Square(id, offsetX, offsetY, width, height);
+       let o;
+       if (o = squares.reduce((acc, s) => acc || square.overlaps(s), false)) {
+        squares.push(square);
+       }
 
-         for (let i = unmatched.length - 1; i >= 0; i--) {
-          let s = unmatched[i];
-          if (square.overlaps(s)) {
-           unmatched.splice(i, 1); // remove unmatched
-           squares.push(s);
-           o = true;
-          }
-         }
+       for (let i = unmatched.length - 1; i >= 0; i--) {
+        let s = unmatched[i];
+        if (square.overlaps(s)) {
+         unmatched.splice(i, 1); // remove unmatched
+         squares.push(s);
+         o = true;
+        }
+       }
 
-         if (!o) {
-          unmatched.push(square);
-         } else {
-          squares.push(square);
-         }
-       });
-  if (unmatched.length !== 1) throw new Error('More overlaps found');
-  console.log('\n',unmatched[0].id);
-});
+       if (!o) {
+        unmatched.push(square);
+       } else {
+        squares.push(square);
+       }
+     });
+if (unmatched.length !== 1) throw new Error('More overlaps found');
+console.log(unmatched[0].id);
