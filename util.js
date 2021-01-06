@@ -1,4 +1,5 @@
 const fs = require('fs');
+const inspect = require('util').inspect;
 
 function readStdin() {
   return fs.readFileSync(0, 'utf-8')
@@ -25,7 +26,7 @@ function readElements(delimiter, decoder) {
 }
 
 function readChars(ignoreNewlines = true) {
-  [...readStdin()]
+  return [...readStdin()]
     .filter(c => !ignoreNewlines || c !== '\n')
 }
 
@@ -45,13 +46,29 @@ function patchArray() {
   };
 }
 
-function parseInt1(x) {
-  return parseInt(x)
+const INSPECT_OVERRIDE = Symbol('inspectOverride')
+
+function patchObject() {
+  Object.prototype.inspect = function () {
+    let out;
+    if (this[INSPECT_OVERRIDE]) {
+      out = this[INSPECT_OVERRIDE]();
+    } else {
+      out = inspect(this);
+    }
+    console.log(out)
+    return this;
+  }
+
+  let override = function () {
+    return this.toString();
+  };
+  [String.prototype, Number.prototype]
+    .forEach(proto => proto[INSPECT_OVERRIDE] = override);
 }
 
-function inspect(x) {
-  console.log(x)
-  return x;
+function parseInt1(x) {
+  return parseInt(x)
 }
 
 module.exports = {
@@ -64,11 +81,13 @@ module.exports = {
 
   // Utilities
   cycle,
-  patchArray,
 
   // patches
+  patchArray,
+  patchObject,
+  INSPECT_OVERRIDE,
   parseInt: parseInt1,
 
   // Debug helpers
-  inspect,
+  inspect: (x) => {console.log(x); return x},
 };
