@@ -1,3 +1,5 @@
+import sys
+
 class Cart:
   def __init__(self, i, x, y, c):
     self.id = i
@@ -47,57 +49,57 @@ class Cart:
     else:
       raise RuntimeError('Invalid direction?')
 
-with open('input') as f:
-  lines = f.readlines()
-  rails = {}
-  carts = []
-  locations = set()
-  for y in range(len(lines)):
-    for x in range(len(lines[y])):
-      coord = (x, y)
-      c = lines[y][x]
-      if c == '>' or c == '<' or c == '^' or c == 'v':
-        carts.append(Cart(len(carts), x, y, c))
-        if c == '>' or c == '<':
-          c = '-'
-        else:
-          c = '|'
-        locations.add(coord)
 
-      rails[coord] = c
-  do_run = True
-  it = 1
-  while do_run:
-#    print "Iteration", it
-    carts.sort(key=lambda cart: (cart.y, cart.x))
-    for cart in carts:
-      locations.remove(cart.coord())
-      cart.tick()
-      loc = cart.coord()
-      if cart.id == 0:
-        pass #print "Cart",cart.id,"moved to",loc,". Moving at",rails[loc]
-      if loc in locations:
-        print loc
-        do_run = False
-        break
-      locations.add(loc)
+lines = sys.stdin.readlines()
+rails = {}
+carts = []
+locations = set()
+for y in range(len(lines)):
+  for x in range(len(lines[y])):
+    coord = (x, y)
+    c = lines[y][x]
+    if c == '>' or c == '<' or c == '^' or c == 'v':
+      carts.append(Cart(len(carts), x, y, c))
+      if c == '>' or c == '<':
+        c = '-'
+      else:
+        c = '|'
+      locations.add(coord)
 
-      piece = rails[loc]
-      if piece == '+':
-        cart.cross()
-      elif piece == '\\':
-        if cart.dx == 0:
-          cart.dx = cart.dy
-          cart.dy = 0
-        else:
-          cart.dy = cart.dx
-          cart.dx = 0
-      elif piece == '/':
-        if cart.dx == 0:
-          cart.dx = -cart.dy
-          cart.dy = 0
-        else:
-          cart.dy = -cart.dx
-          cart.dx = 0
+    rails[coord] = c
+do_run = True
+it = 1
+while do_run:
+  # print "Iteration", it
+  carts.sort(key=lambda cart: (cart.y, cart.x))
+  for cart in carts:
+    locations.remove(cart.coord())
+    cart.tick()
+    loc = cart.coord()
+    if cart.id == 0:
+      pass #print "Cart",cart.id,"moved to",loc,". Moving at",rails[loc]
+    if loc in locations:
+      print(loc)
+      do_run = False
+      break
+    locations.add(loc)
 
-    it += 1
+    piece = rails[loc]
+    if piece == '+':
+      cart.cross()
+    elif piece == '\\':
+      if cart.dx == 0:
+        cart.dx = cart.dy
+        cart.dy = 0
+      else:
+        cart.dy = cart.dx
+        cart.dx = 0
+    elif piece == '/':
+      if cart.dx == 0:
+        cart.dx = -cart.dy
+        cart.dy = 0
+      else:
+        cart.dy = -cart.dx
+        cart.dx = 0
+
+  it += 1

@@ -1,3 +1,5 @@
+import sys
+
 class Cart:
   def __init__(self, i, x, y, c):
     self.id = i
@@ -52,64 +54,63 @@ class Cart:
   def __repr__(self):
     return '{id}@{x},{y}'.format(id=self.id,x=self.x,y=self.y)
 
-with open('input') as f:
-  lines = f.readlines()
-  rails = {}
-  carts = []
-  locations = {}
-  for y in range(len(lines)):
-    for x in range(len(lines[y])):
-      coord = (x, y)
-      c = lines[y][x]
-      if c == '>' or c == '<' or c == '^' or c == 'v':
-        carts.append(Cart(len(carts), x, y, c))
-        if c == '>' or c == '<':
-          c = '-'
-        else:
-          c = '|'
-        locations[coord] = carts[-1]
+lines = sys.stdin.readlines()
+rails = {}
+carts = []
+locations = {}
+for y in range(len(lines)):
+  for x in range(len(lines[y])):
+    coord = (x, y)
+    c = lines[y][x]
+    if c == '>' or c == '<' or c == '^' or c == 'v':
+      carts.append(Cart(len(carts), x, y, c))
+      if c == '>' or c == '<':
+        c = '-'
+      else:
+        c = '|'
+      locations[coord] = carts[-1]
 
-      rails[coord] = c
-  do_run = True
-  it = 1
-  while do_run:
-    carts.sort(key=lambda cart: (cart.y, cart.x))
-    i = 0
-    n = len(carts)
-    while i < n:
-      cart = carts[i]
-      del locations[cart.coord()]
-      cart.tick()
-      loc = cart.coord()
-      if loc in locations:
-        carts.remove(cart)
-        carts.remove(locations[loc])
-        if locations[loc].time == it:
-          i -= 1
-        del locations[loc]
-        n -= 2
-        continue
-      locations[loc] = cart
+    rails[coord] = c
+do_run = True
+it = 1
+while do_run:
+  carts.sort(key=lambda cart: (cart.y, cart.x))
+  i = 0
+  n = len(carts)
+  while i < n:
+    cart = carts[i]
+    del locations[cart.coord()]
+    cart.tick()
+    loc = cart.coord()
+    if loc in locations:
+      carts.remove(cart)
+      carts.remove(locations[loc])
+      if locations[loc].time == it:
+        i -= 1
+      del locations[loc]
+      n -= 2
+      continue
+    locations[loc] = cart
 
-      piece = rails[loc]
-      if piece == '+':
-        cart.cross()
-      elif piece == '\\':
-        if cart.dx == 0:
-          cart.dx = cart.dy
-          cart.dy = 0
-        else:
-          cart.dy = cart.dx
-          cart.dx = 0
-      elif piece == '/':
-        if cart.dx == 0:
-          cart.dx = -cart.dy
-          cart.dy = 0
-        else:
-          cart.dy = -cart.dx
-          cart.dx = 0
-      i += 1
-    if len(carts) == 1:
-      print carts[0].id,carts[0].coord()
-      break
-    it += 1
+    piece = rails[loc]
+    if piece == '+':
+      cart.cross()
+    elif piece == '\\':
+      if cart.dx == 0:
+        cart.dx = cart.dy
+        cart.dy = 0
+      else:
+        cart.dy = cart.dx
+        cart.dx = 0
+    elif piece == '/':
+      if cart.dx == 0:
+        cart.dx = -cart.dy
+        cart.dy = 0
+      else:
+        cart.dy = -cart.dx
+        cart.dx = 0
+    i += 1
+  if len(carts) == 1:
+    print(carts[0].id,carts[0].coord())
+    break
+  it += 1
