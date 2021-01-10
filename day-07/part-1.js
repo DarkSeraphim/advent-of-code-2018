@@ -9,10 +9,7 @@ function getNode(map, id) {
   }
   return node;
 }
-
-readLines('input')
-  .then(lines => {
-    return lines.map(line => {
+const graph = readLines().map(line => {
       let requirement = line.slice('Step '.length)[0];
       let node = line.slice(LINE.length)[0];
       return {requirement, node};
@@ -23,24 +20,24 @@ readLines('input')
       r.nodes.push(n.id);
       return graph;
     }, new Map());
-  }).then(graph => {
-    let queue = [...graph.entries()]
-                  .filter(([id, node]) => !node.requirements.length)
-                  .map(([id, node]) => node);
-    queue.forEach(node => graph.delete(node.id));
-    let order = [];
-    while (queue.length) {
-      queue.sort((a, b) => a.id < b.id ? -1 : 1);
-      let node = queue.shift();
-      order.push(node.id);
-      node.nodes.forEach(other => {
-        let onode = graph.get(other);
-        onode.requirements.splice(onode.requirements.indexOf(node.id), 1);
-        if (onode.requirements.length === 0) {
-          graph.delete(other);
-          queue.push(onode);
-        }
-      });
+
+let queue = [...graph.entries()]
+              .filter(([id, node]) => !node.requirements.length)
+              .map(([id, node]) => node);
+queue.forEach(node => graph.delete(node.id));
+let order = [];
+while (queue.length) {
+  queue.sort((a, b) => a.id < b.id ? -1 : 1);
+  let node = queue.shift();
+  order.push(node.id);
+  node.nodes.forEach(other => {
+    let onode = graph.get(other);
+    onode.requirements.splice(onode.requirements.indexOf(node.id), 1);
+    if (onode.requirements.length === 0) {
+      graph.delete(other);
+      queue.push(onode);
     }
-    console.log(order.join(''));
   });
+}
+console.log(order.join(''));
+

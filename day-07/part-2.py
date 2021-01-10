@@ -1,3 +1,5 @@
+import sys
+
 FIRST = len('Step ')
 SECOND = len('Step C must be finished before step ')
 
@@ -33,50 +35,50 @@ class Worker:
     self.time = 0
     self.end = end
 
-with open('input') as f:
-  lines = f.readlines()
-  pairs = map(lambda line: (line[FIRST], line[SECOND]), lines)
-  graph = {}
-  for (a, b) in pairs:
-    nodeA = getOrAdd(graph, a)
-    nodeB = getOrAdd(graph, b)
-    nodeA.outgoing.append(b)
-    nodeB.incoming.append(a)
-  
-  queue = filter(lambda node: len(node.incoming) == 0, graph.values())
-  for node in queue:
-    del graph[node.key]
-  
-  workers = [Worker() for _ in range(5)]
 
-  def process_node(current):
-    for out in current.outgoing:
-      if out not in graph:
-        continue
-      other = graph[out]
-      other.incoming.remove(current.key)
-      if len(other.incoming) == 0:
-        queue.append(other)
-        del graph[out]
- 
-  counter = 0
-  while True: 
-    available = filter(lambda worker: worker.tick(), workers)
-    for a in available:
-      if a.work:
-        process_node(a.work)
-        # Reset worker
-        a.set_work(None)
+lines = sys.stdin.readlines()
+pairs = list(map(lambda line: (line[FIRST], line[SECOND]), lines))
+graph = {}
+for (a, b) in pairs:
+  nodeA = getOrAdd(graph, a)
+  nodeB = getOrAdd(graph, b)
+  nodeA.outgoing.append(b)
+  nodeB.incoming.append(a)
 
-    queue.sort(key=lambda node: node.key)
-    for worker in available:
-      if len(queue) == 0:
-        break
-      current = queue.pop(0)
-      if current:
-        worker.set_work(current, 61 + ord(current.key) - ord('A'))
-    if len(filter(lambda worker: worker.work, workers)) == 0:
+queue = list(filter(lambda node: len(node.incoming) == 0, graph.values()))
+for node in queue:
+  del graph[node.key]
+
+workers = [Worker() for _ in range(5)]
+
+def process_node(current):
+  for out in current.outgoing:
+    if out not in graph:
+      continue
+    other = graph[out]
+    other.incoming.remove(current.key)
+    if len(other.incoming) == 0:
+      queue.append(other)
+      del graph[out]
+
+counter = 0
+while True: 
+  available = list(filter(lambda worker: worker.tick(), workers))
+  for a in available:
+    if a.work:
+      process_node(a.work)
+      # Reset worker
+      a.set_work(None)
+
+  queue.sort(key=lambda node: node.key)
+  for worker in available:
+    if len(queue) == 0:
       break
-    else:
-      counter += 1
-  print str(counter)
+    current = queue.pop(0)
+    if current:
+      worker.set_work(current, 61 + ord(current.key) - ord('A'))
+  if len(list(filter(lambda worker: worker.work is not None, workers))) == 0:
+    break
+  else:
+    counter += 1
+print(str(counter))
