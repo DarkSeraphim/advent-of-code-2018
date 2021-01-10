@@ -16,44 +16,42 @@ class Point:
     self.x += n*self.dx
     self.y += n*self.dy
 
-with open('input') as f:
-  points = []
-  for line in f.readlines():
-    m = p.match(line)
-    if not m:
-      raise Error('Line {line} did not match :o'.format(line=line))
-    x = int(m.group(1))
-    y = int(m.group(2))
-    dx = int(m.group(3))
-    dy = int(m.group(4))
-    points.append(Point(x,y,dx,dy))
 
-  steps = int(sys.argv[1])
-  for point in points:
-    point.step(steps)
+points = []
+for line in sys.stdin.readlines():
+  m = p.match(line)
+  if not m:
+    raise Error('Line {line} did not match :o'.format(line=line))
+  x = int(m.group(1))
+  y = int(m.group(2))
+  dx = int(m.group(3))
+  dy = int(m.group(4))
+  points.append(Point(x,y,dx,dy))
 
-  x = [point.x for point in points]
-  y = [point.y for point in points]
-  minx = min(x)
-  miny = min(y)
-  maxx = max(x)
-  maxy = max(y)
-  width = maxx - minx
-  height = maxy - miny
-  offx = 2
-  offy = 2
-  width += offx
-  height += offy
+steps = int(sys.argv[1])
+for point in points:
+  point.step(steps)
 
-  data = np.zeros((width, height, 3), dtype=np.uint8)
+x = [point.x for point in points]
+y = [point.y for point in points]
+minx = min(x)
+miny = min(y)
+maxx = max(x)
+maxy = max(y)
+width = maxx - minx
+height = maxy - miny
+offx = 2
+offy = 2
+width += offx
+height += offy
 
-  for point in points:
-    x = point.x - minx - 1 + offx / 2
-    y = point.y - miny - 1 + offy / 2
-    data[x, y] = [255,255,255]
+data = np.zeros((width, height, 3), dtype=np.uint8)
 
+for point in points:
+  x = point.x - minx - 1 + offx // 2
+  y = point.y - miny - 1 + offy // 2
+  data[x,y] = [255,255,255]
 
-
-  img = Image.fromarray(data)
-  img.save('solution.png', "PNG")
+img = Image.fromarray(data)
+img.save('solution.png', "PNG")
 
