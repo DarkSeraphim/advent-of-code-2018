@@ -1,5 +1,7 @@
 import sys
 
+orig = sys.stdin.readlines()
+
 def solve(gen):
   def first(line):
     if not line.startswith('initial state: '):
@@ -29,42 +31,42 @@ def solve(gen):
       if a != b:
         return False
     return True
-  with open('input') as f:
-    lines = f.readlines()
-    padding = gen * 2
-    state = (['.'] * padding) + first(lines[0]) + (['.'] * padding)
-    transitions = parse_transitions(lines[2:])
+
+  lines = list(orig)
+  padding = gen * 2
+  state = (['.'] * padding) + first(lines[0]) + (['.'] * padding)
+  transitions = parse_transitions(lines[2:])
   
-    new_state = ['.'] * len(state)
-    # print " 0:", ''.join(state)
-    for i in range(1, gen + 1):
-      offset = 0
-      for j in range(len(state)):
-        for transition in transitions:
-          if matches(transition, state, j):
-            new_state[j] = transition[1]
-            break
-        else:
-          new_state[j] = '.'
-          # raise RuntimeError('None matched? ' + str(j))
-      #prefix = str(i)
-      #prefix = " " * (2-len(prefix)) + prefix + ":"
-      #print prefix, "".join(new_state)
-      t = state
-      state = new_state
-      new_state = t
-    
-    result = 0
-    first = -1
-    last = -1
-    for i in range(len(state)):
-      if state[i] == '#':
-        result += (i - padding)
-        if first == -1:
-          first = i
-        last = i
+  new_state = ['.'] * len(state)
+  # print " 0:", ''.join(state)
+  for i in range(1, gen + 1):
+    offset = 0
+    for j in range(len(state)):
+      for transition in transitions:
+        if matches(transition, state, j):
+          new_state[j] = transition[1]
+          break
+      else:
+        new_state[j] = '.'
+        # raise RuntimeError('None matched? ' + str(j))
+    #prefix = str(i)
+    #prefix = " " * (2-len(prefix)) + prefix + ":"
+    #print prefix, "".join(new_state)
+    t = state
+    state = new_state
+    new_state = t
   
-    return (result, ''.join(state[first:last+1]))
+  result = 0
+  first = -1
+  last = -1
+  for i in range(len(state)):
+    if state[i] == '#':
+      result += (i - padding)
+      if first == -1:
+        first = i
+      last = i
+  
+  return (result, ''.join(state[first:last+1]))
 
 a = 0
 b = 0
@@ -78,4 +80,4 @@ while True:
     break
   i += 10
 sol = (l[0] + ((n[0] - l[0]) * ((50000000000 - i)/10)))
-print sol
+print(sol)
