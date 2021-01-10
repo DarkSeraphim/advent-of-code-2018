@@ -1,5 +1,5 @@
 import sys
-serial = int(sys.argv[1])
+serial = int(sys.stdin.readlines()[0])
 
 def compute(x, y):
   id = x + 10
@@ -46,4 +46,4 @@ for x in range(300 - 2):
         best = val
         coords = (x, y, size)
 
-print coords
+print(coords)
